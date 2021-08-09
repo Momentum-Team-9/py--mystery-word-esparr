@@ -1,7 +1,7 @@
 # Computer select random word from words.txt file
 import random
 
-# Defining my functions
+# Defining functions
 def all_mystery_game_words(file):
     with open(file) as file_doc:
         words = file_doc.readlines()
@@ -11,17 +11,17 @@ def make_random_word_in_mode(mode, words):
     mode_words = []
     if mode == 'easy':
         for word in words:
-            if (len(word) >= 4 and len(word) <= 6):
+            if (len(word) >= 5 and len(word) <= 7):
                 mode_words.append(word)
                 random_word = random.choice(mode_words)
     elif mode == 'normal':
         for word in words:
-            if (len(word) >=6 and len(word) <= 8):
+            if (len(word) >=7 and len(word) <= 9):
                 mode_words.append(word)
                 random_word = random.choice(mode_words)
     elif mode == 'hard':
         for word in words:
-            if len(word) >= 8:
+            if len(word) >= 9:
                 mode_words.append(word)
                 random_word = random.choice(mode_words)
     else:
@@ -48,9 +48,38 @@ def ask_for_mode():
     user_input = user_input.lower()
     return user_input
 
-def mystery_display(random_word):
-    length_of_word = (len(random_word) - 1) * "_ "
-    print (length_of_word)
+def display_word(new_letter, guessed_lettters):
+    if new_letter in guessed_lettters:
+        return new_letter
+    else: 
+        return "_"
+
+def mystery_print(random_word, guessed_letters, user_input, guess_count):
+    random_word = random_word_shorten(random_word)
+    guessed_letters, user_input, guess_count = letter_validation(user_input, guessed_letters, guess_count)
+    print_letters = [display_word(new_letter, guessed_letters) for new_letter in random_word]
+    return ' '.join(print_letters), user_input, guessed_letters, guess_count
+
+def random_word_shorten(random_word):
+    return random_word.upper().rstrip()
+
+def letter_validation(user_input, guessed_letters, guess_count):
+    if len(user_input) < 2:
+        is_it_guessed_letter(user_input, guessed_letters)
+
+        return guessed_letters, user_input, guess_count
+    else:
+        print("One letter at a time please.")
+        return guessed_letters, user_input, guess_count
+
+def is_it_guessed_letter(user_input, guessed_letters):
+    if user_input in guessed_letters:
+        print('You have already guessed ' + user_input + ', please guess again.')
+        print('Guessed letters: ' + ', '.join(guessed_letters))
+    else:
+        print ('You guessed right!')
+        guessed_letters.append(user_input)
+        print('Guessed letters: ' + ', '.join(guessed_letters))
 
 def guess_tally(number_of_guesses):
     guess_count = number_of_guesses + 1
@@ -75,7 +104,7 @@ def guess_count_validation(guess_count):
     elif guess_count <= 8:
         user_input = guess_prompt()
         guess_count += 1
-        print(user_input, ": guess tally - ", guess_count, ": ", type(guess_count))
+        # print(user_input, ": guess tally - ", guess_count, ": ", type(guess_count))
         return guess_count, user_input
     else:
         print('Where is the guess count? ', type(guess_count))
@@ -102,11 +131,14 @@ def mystery_word_game(words):
     guess_count = 0
     user_input = ask_for_mode()
     random_word = make_random_word_in_mode(user_input, words)
+    guessed_letters = []
     while user_input != 'quit':
         print('random word = ', random_word)
-        mystery_display(random_word)
+        print_letters, user_input, guessed_letters, guess_count = mystery_print(random_word, guessed_letters, user_input, guess_count)
+        print(print_letters)
+        print(guess_count)
         guess_count, user_input = guess_count_validation(guess_count)
-
+        
 # Game is called here
 words = all_mystery_game_words('words.txt')
 mystery_word_game(words)
